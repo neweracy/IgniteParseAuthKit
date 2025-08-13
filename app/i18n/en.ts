@@ -6,6 +6,7 @@ const en = {
     cancel: "Cancel",
     back: "Back",
     logOut: "Log Out", // @demo remove-current-line
+    loading: "loading",
   },
   welcomeScreen: {
     postscript:
@@ -40,7 +41,11 @@ const en = {
     passwordFieldLabel: "Password",
     emailFieldPlaceholder: "Enter your email address",
     passwordFieldPlaceholder: "Super secret password here",
+    passwordFieldLabelConf: "Confirm Password",
+
+    passwordFieldPlaceholderConf: "Confirm your super secret password",
     tapToLogIn: "Tap to log in!",
+    toRegister: "Don't have an account?",
     hint: "Hint: you can use any email address and your favorite password :)",
   },
   demoNavigator: {
@@ -120,6 +125,17 @@ const en = {
       content:
         "No favorites have been added yet. Tap the heart on an episode to add it to your favorites!",
     },
+  },
+  signUpScreen: {
+    signUp: "Create Account",
+    enterDetails:
+      "Fill in your details below to access top secret content. It’s not Area 51... but close enough.",
+    emailFieldLabel: "Email",
+    passwordFieldLabel: "Password",
+    emailFieldPlaceholder: "Enter your email address",
+    passwordFieldPlaceholder: "Choose a strong password",
+    ToLogIn: "Already have an account? Log in here!",
+    hint: "Hint: any valid email works. Make your password memorable!",
   },
   // @demo remove-block-start
   ...demoEn,

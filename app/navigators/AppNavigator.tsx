@@ -4,7 +4,7 @@
  * Generally speaking, it will contain an auth flow (registration, login, forgot password)
  * and a "main" flow which the user will use once logged in.
  */
-import React,{ ComponentProps } from "react"
+import React,{ ComponentProps, useEffect } from "react"
 import {
   NavigationContainer,
   NavigatorScreenParams, // @demo remove-current-line
@@ -16,10 +16,17 @@ import { useAuth } from "@/context/AuthContext" // @demo remove-current-line
 import { ErrorBoundary } from "@/screens/ErrorScreen/ErrorBoundary"
 import { LoginScreen } from "@/screens/LoginScreen" // @demo remove-current-line
 import { WelcomeScreen } from "@/screens/WelcomeScreen"
+import { RegisterScreen } from "@/screens/RegisterScreen" // @demo remove-current-line
+import { ChooseAuthScreen } from "@/screens/ChooseAuthScreen" // @demo remove-current-line
+import { ForgetPasswordScreen } from "@/screens/ForgetPasswordScreen"
 import { useAppTheme } from "@/theme/context"
+
 
 import { DemoNavigator, DemoTabParamList } from "./DemoNavigator" // @demo remove-current-line
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
+import { Alert } from "react-native"
+import { showQueuedAlert } from "@/components"
+
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -35,7 +42,10 @@ export type AppStackParamList = {
   Login: undefined // @demo remove-current-line
   Demo: NavigatorScreenParams<DemoTabParamList> // @demo remove-current-line
   // 🔥 Your screens go here
-  // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
+  Register: undefined
+	ChooseAuth: undefined
+	ForgetPassword: undefined
+	// IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
 
 /**
@@ -54,11 +64,33 @@ const Stack = createNativeStackNavigator<AppStackParamList>()
 
 const AppStack = () => {
   // @demo remove-block-start
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated,checkServerStatus } = useAuth()
   // @demo remove-block-end
   const {
     theme: { colors },
   } = useAppTheme()
+
+  useEffect(() => {
+    const checkStatus = async () => {
+      const status = await checkServerStatus();
+      if (!status.isRunning) {
+        showQueuedAlert({
+          title: "No connection",
+          message: status.message,
+       
+        })
+      }
+    };
+    
+    // Initial check
+    checkStatus();
+    
+    // Set up interval for periodic checks (every 30 seconds)
+    const intervalId = setInterval(checkStatus, 30000);
+    
+    // Clean up the interval when the component unmounts or when checkServerStatus changes
+    return () => clearInterval(intervalId);
+  }, [checkServerStatus])
 
   return (
     <Stack.Navigator
@@ -82,7 +114,10 @@ const AppStack = () => {
       ) : (
         <>
          <Stack.Screen name="Welcome" component={WelcomeScreen} />
+         <Stack.Screen name="ChooseAuth" component={ChooseAuthScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="ForgetPassword" component={ForgetPasswordScreen} />
         </>
       )}
       {/* @demo remove-block-end */}
