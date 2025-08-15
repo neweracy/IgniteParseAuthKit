@@ -3,7 +3,7 @@
 A comprehensive React Native (Expo) template powered by Ignite CLI and Parse Server, providing production-ready authentication solutions including email/password authentication, Google Sign-In integration, session persistence, and password reset functionality.
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/your-org/ignite-parse-auth-kit/ci.yml?branch=main&style=flat-square)](https://github.com/your-org/ignite-parse-auth-kit/actions)
-[![Coverage](https://codecov.io/gh/your-org/ignite-parse-auth-kit/branch/main/graph/badge.svg?style=flat-square)](https://codecov.io/gh/your-org/ignite-parse-auth-kit)
+[![Coverage](https://codecov.io/gh/your-org/ignite-parse-auth-kit/branch/main/graph/badge.svg?style=flat-square)](https://codecov.io/gh/neweracy/ignite-parse-auth-kit)
 [![npm version](https://img.shields.io/npm/v/ignite-parse-auth-kit.svg?style=flat-square)](https://www.npmjs.com/package/ignite-parse-auth-kit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
@@ -60,31 +60,36 @@ Ensure you have the following installed on your development machine:
 
 ### Installation
 
-1. **Clone the repository**
+1. **Use this template**
+   - Click the "Use this template" button on GitHub
+   - Or visit: `https://github.com/your-org/ignite-parse-auth-kit/generate`
+   - Create your new repository from this template
+
+2. **Clone your new repository**
    ```bash
-   git clone <your-repo-url> ignite-parse-auth-kit
-   cd ignite-parse-auth-kit
+   git clone https://github.com/your-username/your-new-repo-name.git
+   cd your-new-repo-name
    ```
 
-2. **Install dependencies**
+3. **Install dependencies**
    ```bash
    yarn install
    # or
    npm install
    ```
 
-3. **Configure environment variables**
+4. **Configure environment variables**
    ```bash
-   cp .env.example .env
-   # Edit .env with your Parse Server configuration
+   # Create your environment file with Parse Server configuration
+   # Add your EXPO_PUBLIC_* variables as needed
    ```
 
-4. **Start the development server**
+5. **Start the development server**
    ```bash
    expo start --clear
    ```
 
-5. **Launch on device/simulator**
+6. **Launch on device/simulator**
    - Press `i` for iOS Simulator
    - Press `a` for Android Emulator
    - Scan QR code with Expo Go for physical device testing
@@ -380,12 +385,13 @@ npm run build
 We welcome contributions from the community! Here's how you can help:
 
 ### Getting Started
-1. **Fork** the repository
-2. **Clone** your fork locally
+
+1. **Use this template** to create your own repository
+2. **Clone** your new repository locally
 3. **Create** a feature branch: `git checkout -b feat/your-feature-name`
-4. **Make** your changes
+4. **Make** your changes and improvements
 5. **Test** thoroughly on both iOS and Android
-6. **Submit** a pull request
+6. **Submit** a pull request to the original template repository
 
 ### Contribution Guidelines
 
