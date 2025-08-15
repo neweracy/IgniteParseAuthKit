@@ -1,16 +1,9 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { ViewStyle, TextStyle, View, Image, ImageStyle } from "react-native";
 import type { AppStackScreenProps } from "@/navigators/AppNavigator"
 import { Button, Screen, Text, TextField } from "@/components";
-
-
-// Form validation
-const emailValidator = (email: string): string | undefined => {
-  if (!email.length) return "Please enter a valid email address";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Enter a valid Email";
-  return undefined;
-};
+import { useAuth } from "@/context/AuthContext";
 
 const logo = require("@assets/images/logo.png");
 
@@ -19,35 +12,44 @@ interface ForgetPasswordScreenProps
 
 export const ForgetPasswordScreen: FC<ForgetPasswordScreenProps> = observer(
   function ForgetPasswordScreen({ navigation }) {
+    const { 
+      requestPasswordReset, 
+      validateEmail, 
+      isLoading, 
+      error, 
+      resetPasswordMessage,
+      clearResetMessage,
+      setError
+    } = useAuth();
 
     const [email, setEmail] = useState("");
     const [emailError, setEmailError] = useState<string | undefined>();
-    const [message, setMessage] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
+
+    // Clear any existing messages when component mounts
+    useEffect(() => {
+      clearResetMessage();
+      setError("");
+    }, [clearResetMessage, setError]);
 
     // Handle reset password submission
     const resetPassword = async () => {
-      setError(null);
-      setMessage(null);
+      // Clear previous errors
+      setEmailError(undefined);
 
       // Validate email
-      const emailValidationError = emailValidator(email);
+      const emailValidationError = validateEmail(email);
       setEmailError(emailValidationError);
 
       if (emailValidationError) {
         return;
       }
 
-      try {
-
-       
-      } catch (e) {
-        const resetError = e as Error;
-        setError(
-          `Password reset failed: ${
-            resetError.message || "Unknown error occurred"
-          }`
-        );
+      // Request password reset
+      const result = await requestPasswordReset(email);
+      
+      if (result.success) {
+        // Email is cleared after successful request
+        setEmail("");
       }
     };
 
@@ -62,7 +64,7 @@ export const ForgetPasswordScreen: FC<ForgetPasswordScreenProps> = observer(
         safeAreaEdges={["top", "bottom"]}
       >
         <View style={$topContainer}>
-        <Image style={$logoImage} source={logo} resizeMode="contain" />
+          <Image style={$logoImage} source={logo} resizeMode="contain" />
           <Text
             text="Forgot Password"
             size="xl"
@@ -90,17 +92,21 @@ export const ForgetPasswordScreen: FC<ForgetPasswordScreenProps> = observer(
             helper={emailError}
             status={emailError ? "error" : undefined}
             onSubmitEditing={resetPassword}
+            editable={!isLoading}
           />
 
           {error && <Text style={$errorText} text={error} />}
-          {message && <Text style={$successText} text={message} />}
+          {resetPasswordMessage && (
+            <Text style={$successText} text={resetPasswordMessage} />
+          )}
 
           <Button
             testID="reset-password-button"
-            text="Request New Password"
+            text={isLoading ? "Sending..." : "Request New Password"}
             style={$resetButton}
             preset="reversed"
             onPress={resetPassword}
+            disabled={isLoading}
           />
 
           <Button
@@ -109,6 +115,7 @@ export const ForgetPasswordScreen: FC<ForgetPasswordScreenProps> = observer(
             style={$backButton}
             preset="default"
             onPress={goBack}
+            disabled={isLoading}
           />
         </View>
       </Screen>
