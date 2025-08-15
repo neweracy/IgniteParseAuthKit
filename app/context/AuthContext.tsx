@@ -12,7 +12,14 @@ import { useMMKVString, useMMKVObject } from "react-native-mmkv";
 import Parse from "@/lib/Parse/parse";
 import type { TokenResponse } from "expo-auth-session";
 
-// Types matching your MobX store
+/**
+ * AuthContext
+ * - Centralizes authentication state and actions for the app using Parse.
+ * - Persists a minimal user snapshot and session token in MMKV for fast restore.
+ * - Exposes typed helpers for login, signup, Google OAuth, logout, and status checks.
+ */
+
+// Narrow Parse user shape we rely on across the UI
 export interface IAppUser extends Parse.User {
   getEmail(): string;
   getUsername(): string;
@@ -33,7 +40,7 @@ export interface GoogleAuthResponse {
   url?: string;
 }
 
-// Auth state interface
+// In-memory auth state kept in the provider
 interface AuthState {
   authToken?: string;
   authEmail: string;
@@ -44,7 +51,7 @@ interface AuthState {
   username?: string;
 }
 
-// Action types - Updated with CLEAR_FORM action
+// Reducer actions
 type AuthAction =
   | { type: "SET_AUTH_EMAIL"; payload: string }
   | { type: "SET_AUTH_PASSWORD"; payload: string }
@@ -55,7 +62,7 @@ type AuthAction =
   | { type: "RESET_AUTH_STATE" }
   | { type: "CLEAR_FORM" };
 
-// Fixed Reducer
+// Reducer: handles all auth state transitions in one place
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
     case "SET_AUTH_EMAIL":
@@ -76,7 +83,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         username: action.payload?.getUsername(),
       };
     case "RESET_AUTH_STATE":
-      // This resets everything (used for logout)
+  // Full reset (used for logout)
       return {
         ...state,
         authEmail: "",
@@ -88,7 +95,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         username: undefined,
       };
     case "CLEAR_FORM":
-      // This only clears form data, keeps user authentication
+  // Clear only form fields; keep the authenticated user
       return {
         ...state,
         authEmail: "",
@@ -101,7 +108,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   }
 };
 
-// Initial state
+// Initial value for the reducer
 const initialAuthState: AuthState = {
   authEmail: "",
   authPassword: "",
@@ -111,7 +118,7 @@ const initialAuthState: AuthState = {
   username: undefined,
 };
 
-// Helper function to check Parse server connection
+// Lightweight probe to confirm the Parse backend is reachable
 const checkParseServerConnection = async (): Promise<boolean> => {
   try {
     const TestObject = Parse.Object.extend("TestConnection");
@@ -125,7 +132,7 @@ const checkParseServerConnection = async (): Promise<boolean> => {
   }
 };
 
-// Validation helper functions - only validate when needed
+// Validation helpers (return a message string or undefined if valid)
 export const validateEmail = (email: string): string | undefined => {
   if (!email.length) return "Email can't be blank";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -153,7 +160,7 @@ export const validateUsername = (username: string): string | undefined => {
   return undefined;
 };
 
-// Context type
+// Public API exposed via the Auth context
 export type AuthContextType = {
   // State
   isAuthenticated: boolean;
@@ -196,7 +203,7 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
 }) => {
   const [state, dispatch] = useReducer(authReducer, initialAuthState);
 
-  // Persist auth token and user data
+  // Persisted storage (fast restore across app restarts)
   const [persistedAuthToken, setPersistedAuthToken] = useMMKVString(
     "AuthProvider.authToken"
   );
@@ -207,12 +214,12 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
     email: string;
   }>("AuthProvider.userData");
 
-  // Initialize from persisted data
+  // On boot: try to restore a valid session from persisted data
   useEffect(() => {
     const initializeAuth = async () => {
       if (persistedAuthToken && persistedUserData) {
         try {
-          // Try to get current user from Parse first
+          // 1) Prefer the current user already held by Parse if the token matches
           const currentUser = await Parse.User.currentAsync();
           if (currentUser && currentUser.getSessionToken() === persistedAuthToken) {
             dispatch({ type: "SET_CURRENT_USER", payload: currentUser });
@@ -222,18 +229,9 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
           console.warn("Could not get current user from Parse:", error);
         }
 
-        // If Parse.User.currentAsync() fails, reconstruct user from persisted data
+        // 2) Fallback: try to restore session from token using Parse API
         try {
-          // Create a new Parse.User instance and set the session token
-          const user = new Parse.User();
-          user.set("objectId", persistedUserData.objectId);
-          user.set("username", persistedUserData.username);
-          user.set("email", persistedUserData.email);
-          user._sessionToken = persistedAuthToken;
-          
-          // Set as current user in Parse
-          Parse.User._currentUser = user;
-          
+          const user = await Parse.User.become(persistedAuthToken);
           dispatch({
             type: "SET_AUTH_TOKEN",
             payload: { token: persistedAuthToken },
@@ -241,7 +239,7 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
           dispatch({ type: "SET_CURRENT_USER", payload: user });
         } catch (error) {
           console.error("Failed to restore user session:", error);
-          // Clear invalid persisted data
+          // Clear invalid persisted data to avoid loops
           setPersistedAuthToken(undefined);
           setPersistedUserData(undefined);
         }
@@ -251,7 +249,7 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
     initializeAuth();
   }, [persistedAuthToken, persistedUserData, setPersistedAuthToken, setPersistedUserData]);
 
-  // Actions
+  // Lightweight action wrappers
   const setAuthEmail = useCallback((email: string) => {
     dispatch({ type: "SET_AUTH_EMAIL", payload: email });
   }, []);
@@ -272,7 +270,7 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
     [setPersistedAuthToken]
   );
 
-  // Helper function to persist user data
+  // Single place to persist both token and a minimal user snapshot
   const persistUserData = useCallback(
     (user: Parse.User) => {
       const userData = {
@@ -303,7 +301,7 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
     dispatch({ type: "SET_ERROR", payload: "" });
 
     try {
-      // Validate inputs before attempting login
+  // 1) Validate inputs
       const emailError = validateEmail(state.authEmail);
       const passwordError = validatePassword(state.authPassword);
 
@@ -324,12 +322,13 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
         return { success: false, error: errorMessage };
       }
 
+      // 2) Attempt Parse login
       console.log("Parse server is running. Proceeding with login...");
 
       const user = await Parse.User.logIn(state.authEmail, state.authPassword);
       dispatch({ type: "SET_CURRENT_USER", payload: user });
       persistUserData(user);
-      dispatch({ type: "CLEAR_FORM" });
+      dispatch({ type: "CLEAR_FORM" }); // clear form fields only
 
       return { success: true };
     } catch (error) {
@@ -369,7 +368,7 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
       dispatch({ type: "SET_ERROR", payload: "" });
 
       try {
-        // Validate inputs before attempting signup
+        // 1) Validate inputs
         const emailError = validateEmail(state.authEmail);
         const passwordError = validatePassword(state.authPassword);
         const usernameError = validateUsername(username);
@@ -380,7 +379,7 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
           return { success: false, error: errorMessage };
         }
 
-        console.log("Checking Parse server connection...");
+  console.log("Checking Parse server connection...");
         const isServerRunning = await checkParseServerConnection();
 
         if (!isServerRunning) {
@@ -391,7 +390,8 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
           return { success: false, error: errorMessage };
         }
 
-        console.log("Parse server is running. Proceeding with signup...");
+  // 2) Create and sign up a new Parse user
+  console.log("Parse server is running. Proceeding with signup...");
 
         const user = new Parse.User();
         user.set("username", username.trim());
@@ -400,12 +400,11 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
 
         const newUser = await user.signUp();
         
-        // Set the current user and persist data
+  // 3) Set the current user and persist data
         dispatch({ type: "SET_CURRENT_USER", payload: newUser });
         persistUserData(newUser);
         
-        // Clear only the form fields, keep user data
-        dispatch({ type: "CLEAR_FORM" });
+  dispatch({ type: "CLEAR_FORM" }); // clear form fields only
 
         console.log("Signup successful!");
         return { success: true };
@@ -454,6 +453,7 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
       dispatch({ type: "SET_ERROR", payload: "" });
 
       try {
+        // 1) Validate OAuth response
         if (response?.type !== "success") {
           console.log("Google authentication was not successful");
           dispatch({
@@ -485,6 +485,7 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
           };
         }
 
+        // 2) Ensure backend is reachable
         console.log("Checking Parse server connection...");
         const isServerRunning = await checkParseServerConnection();
 
@@ -496,9 +497,8 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
           return { success: false, error: errorMessage };
         }
 
-        console.log(
-          "Parse server is running. Proceeding with Google sign-in..."
-        );
+  // 3) Fetch Google profile and authenticate with Parse using authData
+  console.log("Parse server is running. Proceeding with Google sign-in...");
 
         const { idToken, accessToken } = response.authentication;
 
@@ -530,17 +530,17 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
           );
         }
 
-        // Prepare Parse authentication data
+  // Prepare Parse authentication data
         const authData = {
           id: googleUserId,
           id_token: idToken,
           access_token: accessToken,
         };
 
-        // Authenticate with Parse
+  // Authenticate with Parse
         const user = await Parse.User.logInWith("google", { authData });
 
-        // Update store with authenticated user
+  // Update store with authenticated user
         dispatch({ type: "SET_CURRENT_USER", payload: user });
         persistUserData(user);
         dispatch({ type: "CLEAR_FORM" });
@@ -585,19 +585,19 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
     error?: string;
   }> => {
     try {
-      // Clear persisted data first
+    // Clear persisted data first
       setPersistedAuthToken(undefined);
       setPersistedUserData(undefined);
       
-      // Reset all auth state
+    // Reset all in-memory auth state
       dispatch({ type: "RESET_AUTH_STATE" });
 
-      // Then attempt Parse logout
+    // Then attempt Parse logout (may fail silently on RN; that's OK)
       try {
         await Parse.User.logOut();
       } catch (logoutError) {
         console.warn(
-          "Parse.User.logOut() failed (this is normal in React Native):",
+      "Parse.User.logOut() failed (common in React Native):",
           logoutError
         );
       }
@@ -644,11 +644,12 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
     }
   }, []);
 
-  // Check for existing user on mount
+  // On mount: re-sync the current user from Parse if available
   useEffect(() => {
     checkCurrentUser();
   }, [checkCurrentUser]);
 
+  // Memo-like object literal passed to consumers
   const value: AuthContextType = {
     // State
     isAuthenticated: !!state.currentUser || !!state.authToken,
@@ -689,7 +690,7 @@ export const useAuth = () => {
   return context;
 };
 
-// Export additional helper functions for consistency with your MobX store
+// Convenience helpers (mirror similar Parse utils; safe to keep close to the context)
 export const getCurrentUser = async (): Promise<Parse.User | null> => {
   try {
     return await Parse.User.currentAsync();
