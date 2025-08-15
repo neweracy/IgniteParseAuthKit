@@ -1,77 +1,428 @@
-# Welcome to your new ignited app!
+# Ignite Parse Auth Kit
 
-> The latest and greatest boilerplate for Infinite Red opinions
+A comprehensive React Native (Expo) template powered by Ignite CLI and Parse Server, providing production-ready authentication solutions including email/password authentication, Google Sign-In integration, session persistence, and password reset functionality.
 
-This is the boilerplate that [Infinite Red](https://infinite.red) uses as a way to test bleeding-edge changes to our React Native stack.
+[![Build Status](https://img.shields.io/github/actions/workflow/status/your-org/ignite-parse-auth-kit/ci.yml?branch=main&style=flat-square)](https://github.com/your-org/ignite-parse-auth-kit/actions)
+[![Coverage](https://codecov.io/gh/your-org/ignite-parse-auth-kit/branch/main/graph/badge.svg?style=flat-square)](https://codecov.io/gh/your-org/ignite-parse-auth-kit)
+[![npm version](https://img.shields.io/npm/v/ignite-parse-auth-kit.svg?style=flat-square)](https://www.npmjs.com/package/ignite-parse-auth-kit)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
 
-- [Quick start documentation](https://github.com/infinitered/ignite/blob/master/docs/boilerplate/Boilerplate.md)
-- [Full documentation](https://github.com/infinitered/ignite/blob/master/docs/README.md)
+---
 
-## Getting Started
+## Table of Contents
 
-```bash
-yarn install
-yarn start
-```
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Usage Guide](#usage-guide)
+- [Configuration](#configuration)
+- [Project Structure](#project-structure)
+- [Development](#development)
+- [Contributing](#contributing)
+- [License](#license)
+- [Support & Contact](#support--contact)
+- [Changelog](#changelog)
 
-To make things work on your local simulator, or on your phone, you need first to [run `eas build`](https://github.com/infinitered/ignite/blob/master/docs/expo/EAS.md). We have many shortcuts on `package.json` to make it easier:
+---
 
-```bash
-yarn build:ios:sim # build for ios simulator
-yarn build:ios:dev # build for ios device
-yarn build:ios:prod # build for ios device
-```
+## Features
 
-### `./assets` directory
+### Authentication & Security
 
-This directory is designed to organize and store various assets, making it easy for you to manage and use them in your application. The assets are further categorized into subdirectories, including `icons` and `images`:
+- **Email/Password Authentication** - Complete signup and login flow with real-time validation
+- **Google Sign-In Integration** - Seamless OAuth via Expo AuthSession
+- **Password Reset** - Built-in password recovery using Parse Server
+- **Session Persistence** - Fast session restore using MMKV storage
+- **Server Health Monitoring** - Pre-flight checks before authentication actions
 
-```tree
-assets
-├── icons
-└── images
-```
+### Developer Experience
 
-**icons**
-This is where your icon assets will live. These icons can be used for buttons, navigation elements, or any other UI components. The recommended format for icons is PNG, but other formats can be used as well.
+- **React Native + Expo** - Cross-platform development with modern tooling
+- **TypeScript Support** - Fully typed AuthContext and API responses
+- **Path Aliases** - Clean imports with `@/...` syntax
+- **Offline-First Ready** - Parse local datastore enabled for offline capabilities
+- **Production Ready** - Comprehensive error handling and loading states
 
-Ignite comes with a built-in `Icon` component. You can find detailed usage instructions in the [docs](https://github.com/infinitered/ignite/blob/master/docs/boilerplate/app/components/Icon.md).
+---
 
-**images**
-This is where your images will live, such as background images, logos, or any other graphics. You can use various formats such as PNG, JPEG, or GIF for your images.
+## Quick Start
 
-Another valuable built-in component within Ignite is the `AutoImage` component. You can find detailed usage instructions in the [docs](https://github.com/infinitered/ignite/blob/master/docs/Components-AutoImage.md).
+### Prerequisites
 
-How to use your `icon` or `image` assets:
+Ensure you have the following installed on your development machine:
 
-```typescript
-import { Image } from 'react-native';
+- **Node.js** LTS (v18 or higher)
+- **Package Manager** - Yarn (recommended) or npm
+- **Expo CLI** - Install globally: `npm install -g @expo/cli`
+- **Mobile Development Environment**:
+  - **iOS**: Xcode (macOS only)
+  - **Android**: Android Studio
 
-const MyComponent = () => {
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url> ignite-parse-auth-kit
+   cd ignite-parse-auth-kit
+   ```
+
+2. **Install dependencies**
+   ```bash
+   yarn install
+   # or
+   npm install
+   ```
+
+3. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your Parse Server configuration
+   ```
+
+4. **Start the development server**
+   ```bash
+   expo start --clear
+   ```
+
+5. **Launch on device/simulator**
+   - Press `i` for iOS Simulator
+   - Press `a` for Android Emulator
+   - Scan QR code with Expo Go for physical device testing
+
+---
+
+## Usage Guide
+
+### Authentication Methods
+
+The AuthContext provides a comprehensive API for handling all authentication scenarios:
+
+### Code Examples
+
+#### Email/Password Login
+```tsx
+import { useAuth } from '@/context/AuthContext'
+
+export function LoginScreen() {
+  const { setAuthEmail, setAuthPassword, login, isLoading, error } = useAuth()
+
+  const handleLogin = async () => {
+    setAuthEmail('user@example.com')
+    setAuthPassword('password123')
+    
+    const result = await login()
+    if (!result.success) {
+      console.error('Login failed:', result.error)
+    } else {
+      console.log('Login successful!')
+    }
+  }
+
   return (
-    <Image source={require('assets/images/my_image.png')} />
-  );
-};
+    // Your UI components here
+    <LoginForm onSubmit={handleLogin} loading={isLoading} error={error} />
+  )
+}
 ```
 
-## Running Maestro end-to-end tests
+#### User Registration
+```tsx
+import { useAuth } from '@/context/AuthContext'
 
-Follow our [Maestro Setup](https://ignitecookbook.com/docs/recipes/MaestroSetup) recipe.
+export function SignupScreen() {
+  const { setAuthEmail, setAuthPassword, signUp, isLoading } = useAuth()
 
-## Next Steps
+  const handleSignUp = async () => {
+    setAuthEmail('newuser@example.com')
+    setAuthPassword('securePassword123')
+    
+    const result = await signUp('unique_username')
+    if (result.success) {
+      // User created and automatically logged in
+      console.log('Account created successfully!')
+    }
+  }
 
-### Ignite Cookbook
+  return (
+    <SignupForm onSubmit={handleSignUp} loading={isLoading} />
+  )
+}
+```
 
-[Ignite Cookbook](https://ignitecookbook.com/) is an easy way for developers to browse and share code snippets (or “recipes”) that actually work.
+#### Password Reset
+```tsx
+import { useAuth } from '@/context/AuthContext'
 
-### Upgrade Ignite boilerplate
+export function ForgotPasswordScreen() {
+  const { requestPasswordReset } = useAuth()
 
-Read our [Upgrade Guide](https://ignitecookbook.com/docs/recipes/UpdatingIgnite) to learn how to upgrade your Ignite project.
+  const handlePasswordReset = async (email: string) => {
+    const result = await requestPasswordReset(email)
+    if (result.success) {
+      // Password reset email sent
+      showSuccessMessage('Password reset email sent!')
+    } else {
+      showErrorMessage(result.error)
+    }
+  }
 
-## Community
+  return (
+    <PasswordResetForm onSubmit={handlePasswordReset} />
+  )
+}
+```
 
-⭐️ Help us out by [starring on GitHub](https://github.com/infinitered/ignite), filing bug reports in [issues](https://github.com/infinitered/ignite/issues) or [ask questions](https://github.com/infinitered/ignite/discussions).
+#### Google Sign-In
+```tsx
+import { useAuth } from '@/context/AuthContext'
+import { GoogleSignin } from '@react-native-google-signin/google-signin'
 
-💬 Join us on [Slack](https://join.slack.com/t/infiniteredcommunity/shared_invite/zt-1f137np4h-zPTq_CbaRFUOR_glUFs2UA) to discuss.
+export function SocialLoginScreen() {
+  const { googleSignIn } = useAuth()
 
-📰 Make our Editor-in-chief happy by [reading the React Native Newsletter](https://reactnativenewsletter.com/).
+  const handleGoogleSignIn = async () => {
+    try {
+      // Get Google auth response via Expo AuthSession
+      const googleResponse = await getGoogleAuthResponse()
+      
+      const result = await googleSignIn(googleResponse)
+      if (result.success) {
+        console.log('Google sign-in successful!')
+      }
+    } catch (error) {
+      console.error('Google sign-in failed:', error)
+    }
+  }
+
+  return (
+    <GoogleSignInButton onPress={handleGoogleSignIn} />
+  )
+}
+```
+
+#### Server Health Check
+```tsx
+import { useAuth } from '@/context/AuthContext'
+
+export function ServerStatusComponent() {
+  const { checkServerStatus } = useAuth()
+
+  const verifyServerConnection = async () => {
+    const status = await checkServerStatus()
+    
+    if (status.isRunning) {
+      console.log('✅ Parse Server is running')
+    } else {
+      console.error('❌ Server unavailable:', status.message)
+    }
+  }
+
+  useEffect(() => {
+    verifyServerConnection()
+  }, [])
+
+  return null
+}
+```
+
+---
+
+## Configuration
+
+### Environment Variables
+
+Create a `.env` file in your project root with the following required variables:
+
+```env
+# Parse Server Configuration (Required)
+EXPO_PUBLIC_SERVER_URL=https://your-parse-server.herokuapp.com/parse
+EXPO_PUBLIC_APP_ID=your_unique_app_identifier
+EXPO_PUBLIC_JAVASCRIPT_KEY=your_javascript_key
+
+# Optional: Google Sign-In Configuration
+GOOGLE_CLIENT_ID=your-google-oauth-client-id
+
+# Optional: Development Settings
+NODE_ENV=development
+```
+
+> **⚠️ Security Note**: Never commit sensitive keys to version control. Use Expo's secure environment variable handling for production deployments.
+
+### TypeScript Configuration
+
+The template includes pre-configured path aliases for clean imports:
+
+**tsconfig.json**
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["app/*"],
+      "@/components/*": ["app/components/*"],
+      "@/context/*": ["app/context/*"],
+      "@/lib/*": ["app/lib/*"]
+    }
+  }
+}
+```
+
+**babel.config.js**
+```javascript
+module.exports = function (api) {
+  api.cache(true)
+  
+  return {
+    presets: ['babel-preset-expo'],
+    plugins: [
+      [
+        'module-resolver',
+        {
+          root: ['./'],
+          alias: {
+            '@': './app',
+          },
+          extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+        },
+      ],
+    ],
+  }
+}
+```
+
+### Parse Server Setup
+
+The Parse SDK is initialized in `app/lib/Parse/parse.ts` with the following configuration:
+
+- **AsyncStorage Integration** - For React Native compatibility
+- **Local Datastore** - Enabled for offline-first capabilities
+- **Runtime Validation** - Environment variables are validated on app start
+- **Error Handling** - Comprehensive error boundaries for Parse operations
+
+---
+
+## Project Structure
+
+```text
+ignite-parse-auth-kit/
+├── app/                          # Main application directory
+│   ├── components/               # Reusable UI components
+│   ├── context/                  # React Context providers
+│   │   └── AuthContext.tsx          # Central authentication state
+│   ├── lib/                      # Core libraries and utilities
+│   │   ├── Parse/
+│   │   │   └── parse.ts             # Parse SDK initialization
+│   │   └── utils/
+│   │       ├── validation.ts        # Form validation helpers
+│   │       └── storage.ts           # MMKV storage wrapper
+│   ├── screens/                  # Application screens
+│   │   ├── LoginScreen.tsx          # Email/password login
+│   │   ├── RegisterScreen.tsx       # User registration
+│   │   ├── ForgotPasswordScreen.tsx # Password recovery
+│   │   └── DashboardScreen.tsx      # Protected route example
+│   ├── navigators/               # Navigation configuration
+│   │   ├── AuthNavigator.tsx        # Authentication flow
+│   │   ├── AppNavigator.tsx         # Main app navigation
+│   │   └── types.ts                 # Navigation type definitions
+│   └── types/                    # TypeScript type definitions
+│       ├── auth.ts                  # Authentication types
+│       └── api.ts                   # API response types
+├── assets/                       # Static assets (images, fonts)
+├── .env.example                  # Environment variables template
+├── app.json                      # Expo configuration
+├── package.json                  # Dependencies and scripts
+└── README.md                     # This file
+```
+
+---
+
+## Development
+
+### Available Scripts
+
+```bash
+# Start development server
+npm start
+
+# Start with cache cleared
+npm run start:clear
+
+# Run on iOS simulator
+npm run ios
+
+# Run on Android emulator
+npm run android
+
+# Run tests
+npm test
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint
+
+# Build for production
+npm run build
+```
+
+### Development Workflow
+
+1. **Feature Development** - Create feature branches from `main`
+2. **Testing** - Run tests and manual testing on both platforms
+3. **Code Quality** - Ensure TypeScript compliance and linting passes
+4. **Documentation** - Update relevant documentation for new features
+
+---
+
+## Contributing
+
+We welcome contributions from the community! Here's how you can help:
+
+### Getting Started
+1. **Fork** the repository
+2. **Clone** your fork locally
+3. **Create** a feature branch: `git checkout -b feat/your-feature-name`
+4. **Make** your changes
+5. **Test** thoroughly on both iOS and Android
+6. **Submit** a pull request
+
+### Contribution Guidelines
+
+- Follow [Conventional Commits](https://www.conventionalcommits.org/) format
+- Include tests for new features
+- Update documentation for API changes
+- Keep PRs focused and atomic
+- Ensure all CI checks pass
+
+### Commit Message Format
+```
+type(scope): description
+
+feat(auth): add biometric authentication support
+fix(login): resolve session persistence issue
+docs(readme): update installation instructions
+```
+
+---
+
+## License
+
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for complete details.
+
+```
+MIT License - Copyright (c) 2024 Ignite Parse Auth Kit
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files...
+```
+
+---
+
+## Support & Contact
+
+### Getting Help
+
+- **Bug Reports**: [GitHub Issues](https://github.com/your-org/ignite-parse-auth-kit/issues)
+- **Feature Requests**: [GitHub Discussions](https://github.com/your-org/ignite-parse-auth-kit/discussions)
+- **Documentation**: [Wiki](https://github.com/your-org/ignite-parse-auth-kit/wiki)
