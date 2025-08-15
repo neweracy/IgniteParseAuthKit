@@ -16,7 +16,7 @@ const PARSE_SERVER_URL = getEnv("EXPO_PUBLIC_SERVER_URL")
 const PARSE_APP_ID = getEnv("EXPO_PUBLIC_APP_ID")
 const PARSE_JS_KEY = getEnv("EXPO_PUBLIC_JAVASCRIPT_KEY")
 
-console.log("Initializing Parse with server URL:", PARSE_SERVER_URL)
+// console.log("Initializing Parse with server URL:", PARSE_SERVER_URL)
 
 // Initialize Parse with AsyncStorage for React Native
 initializeParse(

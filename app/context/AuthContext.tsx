@@ -562,6 +562,11 @@ export const AuthProvider: FC<PropsWithChildren<AuthProviderProps>> = ({
         persistUserData(user);
         dispatch({ type: "CLEAR_FORM" });
 
+       
+        user.set("username", name.trim());
+        user.set("email", state.authEmail);
+        user.set("password", state.authPassword);
+
         console.log("Google login successful:", {
           userId: googleUserId,
           email,

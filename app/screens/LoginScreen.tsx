@@ -46,12 +46,12 @@ export const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
     }
   }, [isAuthenticated, navigation]);
 
-  useEffect(() => {
-    // Optional: Pre-fill form fields for development
-    // Remove these in production
-    setAuthEmail("test@example.com");
-    setAuthPassword("password123");
-  }, [setAuthEmail, setAuthPassword]);
+  // useEffect(() => {
+  //   // Optional: Pre-fill form fields for development
+  //   // Remove these in production
+  //   setAuthEmail("test@example.com");
+  //   setAuthPassword("password123");
+  // }, [setAuthEmail, setAuthPassword]);
 
   const register = () => {
     navigation.navigate("Register");
