@@ -3,7 +3,7 @@
 A comprehensive React Native (Expo) template powered by Ignite CLI and Parse Server, providing production-ready authentication solutions including email/password authentication, Google Sign-In integration, session persistence, and password reset functionality.
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/your-org/ignite-parse-auth-kit/ci.yml?branch=main&style=flat-square)](https://github.com/your-org/ignite-parse-auth-kit/actions)
-[![Coverage](https://codecov.io/gh/your-org/ignite-parse-auth-kit/branch/main/graph/badge.svg?style=flat-square)](https://codecov.io/gh/your-org/ignite-parse-auth-kit)
+[![Coverage](https://codecov.io/gh/your-org/ignite-parse-auth-kit/branch/main/graph/badge.svg?style=flat-square)](https://codecov.io/gh/neweracy/ignite-parse-auth-kit)
 [![npm version](https://img.shields.io/npm/v/ignite-parse-auth-kit.svg?style=flat-square)](https://www.npmjs.com/package/ignite-parse-auth-kit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
