@@ -272,6 +272,8 @@ PODS:
     - Yoga
   - ExpoAsset (11.1.7):
     - ExpoModulesCore
+  - ExpoCrypto (14.1.5):
+    - ExpoModulesCore
   - ExpoFileSystem (18.1.11):
     - ExpoModulesCore
   - ExpoFont (13.3.2):
@@ -310,6 +312,8 @@ PODS:
   - ExpoSplashScreen (0.30.10):
     - ExpoModulesCore
   - ExpoSystemUI (5.0.10):
+    - ExpoModulesCore
+  - ExpoWebBrowser (14.2.0):
     - ExpoModulesCore
   - EXUpdatesInterface (1.1.0):
     - ExpoModulesCore
@@ -1644,6 +1648,8 @@ PODS:
     - React-jsiexecutor
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
+  - react-native-get-random-values (1.11.0):
+    - React-Core
   - react-native-keyboard-controller (1.18.2):
     - DoubleConversion
     - glog
@@ -2114,6 +2120,30 @@ PODS:
     - React-logger (= 0.79.4)
     - React-perflogger (= 0.79.4)
     - React-utils (= 0.79.4)
+  - RNCAsyncStorage (2.2.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNFlashList (1.8.1):
     - DoubleConversion
     - glog
@@ -2139,6 +2169,30 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - RNGestureHandler (2.24.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - RNKeychain (10.0.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2353,6 +2407,7 @@ DEPENDENCIES:
   - expo-dev-menu (from `../node_modules/expo-dev-menu`)
   - expo-dev-menu-interface (from `../node_modules/expo-dev-menu-interface/ios`)
   - ExpoAsset (from `../node_modules/expo-asset/ios`)
+  - ExpoCrypto (from `../node_modules/expo-crypto/ios`)
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
   - ExpoFont (from `../node_modules/expo-font/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
@@ -2361,6 +2416,7 @@ DEPENDENCIES:
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - ExpoSplashScreen (from `../node_modules/expo-splash-screen/ios`)
   - ExpoSystemUI (from `../node_modules/expo-system-ui/ios`)
+  - ExpoWebBrowser (from `../node_modules/expo-web-browser/ios`)
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -2400,6 +2456,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
+  - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-keyboard-controller (from `../node_modules/react-native-keyboard-controller`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -2434,8 +2491,10 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNFlashList (from `../node_modules/@shopify/flash-list`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -2469,6 +2528,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-dev-menu-interface/ios"
   ExpoAsset:
     :path: "../node_modules/expo-asset/ios"
+  ExpoCrypto:
+    :path: "../node_modules/expo-crypto/ios"
   ExpoFileSystem:
     :path: "../node_modules/expo-file-system/ios"
   ExpoFont:
@@ -2485,6 +2546,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-splash-screen/ios"
   ExpoSystemUI:
     :path: "../node_modules/expo-system-ui/ios"
+  ExpoWebBrowser:
+    :path: "../node_modules/expo-web-browser/ios"
   EXUpdatesInterface:
     :path: "../node_modules/expo-updates-interface/ios"
   fast_float:
@@ -2560,6 +2623,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   React-microtasksnativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
+  react-native-get-random-values:
+    :path: "../node_modules/react-native-get-random-values"
   react-native-keyboard-controller:
     :path: "../node_modules/react-native-keyboard-controller"
   react-native-mmkv:
@@ -2628,10 +2693,14 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNCAsyncStorage:
+    :path: "../node_modules/@react-native-async-storage/async-storage"
   RNFlashList:
     :path: "../node_modules/@shopify/flash-list"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNKeychain:
+    :path: "../node_modules/react-native-keychain"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
@@ -2652,6 +2721,7 @@ SPEC CHECKSUMS:
   expo-dev-menu: 0771fa9c5c405e07aa15e55a699b8a4a984ea77a
   expo-dev-menu-interface: 609c35ae8b97479cdd4c9e23c8cf6adc44beea0e
   ExpoAsset: ef06e880126c375f580d4923fdd1cdf4ee6ee7d6
+  ExpoCrypto: a9f1d75baeea6ef8b03c1660621585196c382e85
   ExpoFileSystem: 7f92f7be2f5c5ed40a7c9efc8fa30821181d9d63
   ExpoFont: cf508bc2e6b70871e05386d71cab927c8524cc8e
   ExpoKeepAwake: bf0811570c8da182bfb879169437d4de298376e7
@@ -2660,6 +2730,7 @@ SPEC CHECKSUMS:
   ExpoModulesCore: 00a1b5c73248465bd0b93f59f8538c4573dac579
   ExpoSplashScreen: 0ad5acac1b5d2953c6e00d4319f16d616f70d4dd
   ExpoSystemUI: c2724f9d5af6b1bb74e013efadf9c6a8fae547a2
+  ExpoWebBrowser: dc39a88485f007e61a3dff05d6a75f22ab4a2e92
   EXUpdatesInterface: 7ff005b7af94ee63fa452ea7bb95d7a8ff40277a
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
   FBLazyVector: 15c28682af535aa55b9b31e64deff54b7ed7d453
@@ -2697,6 +2768,7 @@ SPEC CHECKSUMS:
   React-logger: 694787b12186eeeadccdfdc6769890e9080c1f11
   React-Mapbuffer: a0ee08ac29b8a2c08692aa0d51cefa1c88860e17
   React-microtasksnativemodule: ef2292ca147fa8793305e4693586ad0caf3afad3
+  react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
   react-native-keyboard-controller: 6639909c537996e456f3cc8dcfdda3a0cbcd6fc8
   react-native-mmkv: fb6fdab2e83b892959e32586b7814078fe6c1a6a
   react-native-safe-area-context: 562163222d999b79a51577eda2ea8ad2c32b4d06
@@ -2731,8 +2803,10 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: bf62814e0fde923f73fc64b7e82d76c63c284da9
   ReactCodegen: f891084749d03b8af8a244cefaa492e491b763fd
   ReactCommon: c7d636ec1b9801ff4ee83cce8e0bf74a1610fc3f
+  RNCAsyncStorage: a1c8cc8a99c32de1244a9cf707bf9d83d0de0f71
   RNFlashList: 886b486296b0b161389385c038740e1a5d424cf4
   RNGestureHandler: 7d0931a61d7ba0259f32db0ba7d0963c3ed15d2b
+  RNKeychain: 943b4dbceef4b3a310c9122c99d1e5b0bd66b9f3
   RNReanimated: 2313402fe27fecb7237619e9c6fcee3177f08a65
   RNScreens: 482e9707f9826230810c92e765751af53826d509
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
