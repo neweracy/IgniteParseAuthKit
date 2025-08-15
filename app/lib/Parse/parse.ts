@@ -4,16 +4,19 @@ import Parse from "parse/react-native"
 import 'react-native-get-random-values';
 
 
-// Parse server details
-const PARSE_SERVER_URL = process.env.EXPO_PUBLIC_SERVER_URL
-const PARSE_APP_ID = process.env.EXPO_PUBLIC_APP_ID
-const PARSE_JS_KEY = process.env.EXPO_PUBLIC_JAVASCRIPT_KEY
+// Runtime guard + type narrowing
+const getEnv = (key: string): string => {
+  const v = process.env[key]
+  if (!v) throw new Error(`Missing required env var: ${key}`)
+  return v
+}
+
+// Parse server details (now guaranteed strings)
+const PARSE_SERVER_URL = getEnv("EXPO_PUBLIC_SERVER_URL")
+const PARSE_APP_ID = getEnv("EXPO_PUBLIC_APP_ID")
+const PARSE_JS_KEY = getEnv("EXPO_PUBLIC_JAVASCRIPT_KEY")
 
 console.log("Initializing Parse with server URL:", PARSE_SERVER_URL)
-
-if (!PARSE_SERVER_URL || !PARSE_APP_ID) {
-  throw new Error("Missing required Parse server configuration. Please check your environment variables.")
-}
 
 // Initialize Parse with AsyncStorage for React Native
 initializeParse(

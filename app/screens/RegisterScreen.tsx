@@ -75,6 +75,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({ navigation }) => {
   // Navigate to authenticated area if signup successful
   useEffect(() => {
     if (isAuthenticated) {
+      console.log('works')
       navigation.navigate("Demo");
     }
   }, [isAuthenticated, navigation]);
@@ -98,7 +99,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({ navigation }) => {
   };
 
   useHeader({
-    title: "Sign Up",
+    
     leftIcon: "back",
     onLeftPress: goBack,
   });
@@ -233,7 +234,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({ navigation }) => {
     <Screen
       style={$root}
       preset="auto"
-      safeAreaEdges={["top", "bottom"]}
+      safeAreaEdges={[ "bottom"]}
       contentContainerStyle={themed($screenContentContainer)}
     >
       <Text
@@ -283,7 +284,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({ navigation }) => {
         editable={!isLoading}
       />
 
-      {/* <TextField
+      <TextField
         ref={usernameInput}
         value={username}
         onChangeText={setUsername}
@@ -291,13 +292,13 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({ navigation }) => {
         autoCapitalize="none"
         autoComplete="username"
         autoCorrect={false}
-        labelTx="signUpScreen:usernameFieldLabel"
-        placeholderTx="signUpScreen:usernameFieldPlaceholder"
+        label="Username"
+        placeholder="Enter your username"
         helper={usernameError}
         status={usernameError ? "error" : undefined}
         onSubmitEditing={() => authPasswordInput.current?.focus()}
         editable={!isLoading}
-      /> */}
+      /> 
 
       <TextField
         ref={authPasswordInput}
