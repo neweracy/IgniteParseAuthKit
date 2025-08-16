@@ -3,7 +3,7 @@
 A comprehensive React Native (Expo) template powered by Ignite CLI and Parse Server, providing production-ready authentication solutions including email/password authentication, Google Sign-In integration, session persistence, and password reset functionality.
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/your-org/ignite-parse-auth-kit/ci.yml?branch=main&style=flat-square)](https://github.com/your-org/ignite-parse-auth-kit/actions)
-[![Coverage](https://codecov.io/gh/your-org/ignite-parse-auth-kit/branch/main/graph/badge.svg?style=flat-square)](https://codecov.io/gh/neweracy/ignite-parse-auth-kit)
+[![codecov](https://codecov.io/gh/neweracy/IgniteParseAuthKit/graph/badge.svg?token=JCS7VCWX7E)](https://codecov.io/gh/neweracy/IgniteParseAuthKit)
 [![npm version](https://img.shields.io/npm/v/ignite-parse-auth-kit.svg?style=flat-square)](https://www.npmjs.com/package/ignite-parse-auth-kit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
@@ -105,6 +105,7 @@ The AuthContext provides a comprehensive API for handling all authentication sce
 ### Code Examples
 
 #### Email/Password Login
+
 ```tsx
 import { useAuth } from '@/context/AuthContext'
 
@@ -124,18 +125,22 @@ export function LoginScreen() {
   }
 
   return (
-    // Your UI components here
-    <LoginForm onSubmit={handleLogin} loading={isLoading} error={error} />
+    <View>
+      {/* Your login form UI here */}
+      <Button title="Login" onPress={handleLogin} disabled={isLoading} />
+      {error && <Text style={{ color: 'red' }}>{error}</Text>}
+    </View>
   )
 }
 ```
 
 #### User Registration
+
 ```tsx
 import { useAuth } from '@/context/AuthContext'
 
-export function SignupScreen() {
-  const { setAuthEmail, setAuthPassword, signUp, isLoading } = useAuth()
+export function RegisterScreen() {
+  const { setAuthEmail, setAuthPassword, signUp, isLoading, error } = useAuth()
 
   const handleSignUp = async () => {
     setAuthEmail('newuser@example.com')
@@ -143,88 +148,108 @@ export function SignupScreen() {
     
     const result = await signUp('unique_username')
     if (result.success) {
-      // User created and automatically logged in
       console.log('Account created successfully!')
+    } else {
+      console.error('Registration failed:', result.error)
     }
   }
 
   return (
-    <SignupForm onSubmit={handleSignUp} loading={isLoading} />
+    <View>
+      {/* Your registration form UI here */}
+      <Button title="Sign Up" onPress={handleSignUp} disabled={isLoading} />
+      {error && <Text style={{ color: 'red' }}>{error}</Text>}
+    </View>
   )
 }
 ```
 
 #### Password Reset
+
 ```tsx
 import { useAuth } from '@/context/AuthContext'
 
-export function ForgotPasswordScreen() {
+export function PasswordResetScreen() {
   const { requestPasswordReset } = useAuth()
+  const [email, setEmail] = useState('')
 
-  const handlePasswordReset = async (email: string) => {
+  const handlePasswordReset = async () => {
     const result = await requestPasswordReset(email)
     if (result.success) {
-      // Password reset email sent
-      showSuccessMessage('Password reset email sent!')
+      Alert.alert('Success', result.message || 'Password reset email sent!')
     } else {
-      showErrorMessage(result.error)
+      Alert.alert('Error', result.error || 'Failed to send reset email')
     }
   }
 
   return (
-    <PasswordResetForm onSubmit={handlePasswordReset} />
+    <View>
+      <TextInput
+        value={email}
+        onChangeText={setEmail}
+        placeholder="Enter your email"
+        keyboardType="email-address"
+      />
+      <Button title="Reset Password" onPress={handlePasswordReset} />
+    </View>
   )
 }
 ```
 
 #### Google Sign-In
+
 ```tsx
 import { useAuth } from '@/context/AuthContext'
-import { GoogleSignin } from '@react-native-google-signin/google-signin'
 
-export function SocialLoginScreen() {
+export function GoogleSignInScreen() {
   const { googleSignIn } = useAuth()
 
   const handleGoogleSignIn = async () => {
     try {
-      // Get Google auth response via Expo AuthSession
+      // You'll need to implement getGoogleAuthResponse using Expo AuthSession
       const googleResponse = await getGoogleAuthResponse()
       
       const result = await googleSignIn(googleResponse)
       if (result.success) {
         console.log('Google sign-in successful!')
+      } else {
+        console.error('Google sign-in failed:', result.error)
       }
     } catch (error) {
-      console.error('Google sign-in failed:', error)
+      console.error('Google sign-in error:', error)
     }
   }
 
   return (
-    <GoogleSignInButton onPress={handleGoogleSignIn} />
+    <View>
+      <Button title="Sign in with Google" onPress={handleGoogleSignIn} />
+    </View>
   )
 }
 ```
 
 #### Server Health Check
+
 ```tsx
 import { useAuth } from '@/context/AuthContext'
+import { useEffect } from 'react'
 
 export function ServerStatusComponent() {
   const { checkServerStatus } = useAuth()
 
-  const verifyServerConnection = async () => {
-    const status = await checkServerStatus()
-    
-    if (status.isRunning) {
-      console.log('✅ Parse Server is running')
-    } else {
-      console.error('❌ Server unavailable:', status.message)
-    }
-  }
-
   useEffect(() => {
+    const verifyServerConnection = async () => {
+      const status = await checkServerStatus()
+      
+      if (status.isRunning) {
+        console.log('✅ Parse Server is running')
+      } else {
+        console.error('❌ Server unavailable:', status.message)
+      }
+    }
+
     verifyServerConnection()
-  }, [])
+  }, [checkServerStatus])
 
   return null
 }
