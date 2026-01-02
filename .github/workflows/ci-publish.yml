@@ -8,6 +8,14 @@ on:
     branches: [main]
   push:
     branches: [main]
+  # Manual trigger for on-demand publishing
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish to npm after build'
+        required: true
+        default: 'true'
+        type: boolean
 
 # Minimal permissions - only what's needed
 permissions:
@@ -96,10 +104,10 @@ jobs:
     needs: validate  # Only run after all checks pass
     timeout-minutes: 10
 
-    # Only publish on push to main (not PRs) and not from forks
+    # Only publish on push to main, manual dispatch, or not from forks
     if: |
-      github.event_name == 'push' &&
-      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && inputs.publish == true) &&
       github.repository == 'neweracy/IgniteParseAuthKit'
 
     permissions:
