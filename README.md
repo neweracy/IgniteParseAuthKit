@@ -2,7 +2,7 @@
 
 A comprehensive React Native (Expo) template powered by Ignite CLI and Parse Server, providing production-ready authentication solutions including email/password authentication, Google Sign-In integration, session persistence, and password reset functionality.
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/your-org/ignite-parse-auth-kit/ci.yml?branch=main&style=flat-square)](https://github.com/your-org/ignite-parse-auth-kit/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/neweracy/IgniteParseAuthKit/ci.yml?branch=main&style=flat-square)](https://github.com/neweracy/IgniteParseAuthKit/actions)
 [![codecov](https://codecov.io/gh/neweracy/IgniteParseAuthKit/graph/badge.svg?token=JCS7VCWX7E)](https://codecov.io/gh/neweracy/IgniteParseAuthKit)
 [![npm version](https://img.shields.io/npm/v/ignite-parse-auth-kit.svg?style=flat-square)](https://www.npmjs.com/package/ignite-parse-auth-kit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
@@ -14,6 +14,7 @@ A comprehensive React Native (Expo) template powered by Ignite CLI and Parse Ser
 
 - [Features](#features)
 - [Quick Start](#quick-start)
+- [Installation via npm](#installation-via-npm)
 - [Usage Guide](#usage-guide)
 - [Configuration](#configuration)
 - [Project Structure](#project-structure)
@@ -47,22 +48,44 @@ A comprehensive React Native (Expo) template powered by Ignite CLI and Parse Ser
 
 ## Quick Start
 
-### Prerequisites
+### Installation via npm (Recommended)
 
-Ensure you have the following installed on your development machine:
+The easiest way to create a new project is using npx:
 
-- **Node.js** LTS (v18 or higher)
-- **Package Manager** - Yarn (recommended) or npm
-- **Expo CLI** - Install globally: `npm install -g @expo/cli`
-- **Mobile Development Environment**:
-  - **iOS**: Xcode (macOS only)
-  - **Android**: Android Studio
+```bash
+# Create a new project
+npx ignite-parse-auth-kit my-app
 
-### Installation
+# Navigate to the project
+cd my-app
+
+# Start developing
+npx expo start
+```
+
+#### CLI Options
+
+```bash
+# Skip automatic dependency installation
+npx ignite-parse-auth-kit my-app --skip-install
+
+# Use npm instead of yarn
+npx ignite-parse-auth-kit my-app --use-npm
+
+# Use bun instead of yarn
+npx ignite-parse-auth-kit my-app --use-bun
+
+# Specify a custom directory
+npx ignite-parse-auth-kit my-app --directory ./projects
+```
+
+### Alternative Installation Methods
+
+#### Using GitHub Template
 
 1. **Use this template**
    - Click the "Use this template" button on GitHub
-   - Or visit: `https://github.com/your-org/ignite-parse-auth-kit/generate`
+   - Or visit: `https://github.com/neweracy/IgniteParseAuthKit/generate`
    - Create your new repository from this template
 
 2. **Clone your new repository**
@@ -80,19 +103,29 @@ Ensure you have the following installed on your development machine:
 
 4. **Configure environment variables**
    ```bash
-   # Create your environment file with Parse Server configuration
-   # Add your EXPO_PUBLIC_* variables as needed
+   # Edit app/config/config.dev.ts with your Parse Server configuration
    ```
 
 5. **Start the development server**
    ```bash
-   expo start --clear
+   npx expo start
    ```
 
 6. **Launch on device/simulator**
    - Press `i` for iOS Simulator
    - Press `a` for Android Emulator
    - Scan QR code with Expo Go for physical device testing
+
+### Prerequisites
+
+Ensure you have the following installed on your development machine:
+
+- **Node.js** LTS (v18 or higher)
+- **Package Manager** - Yarn, npm, or bun
+- **Expo CLI** - Comes with npx (no global install needed)
+- **Mobile Development Environment**:
+  - **iOS**: Xcode (macOS only)
+  - **Android**: Android Studio
 
 ---
 

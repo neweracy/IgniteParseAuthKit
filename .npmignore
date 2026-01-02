@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+bun.lockb
+yarn.lock
+package-lock.json
+
+# Build outputs
+.expo/
+android/
+ios/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.jest/
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# EAS
+.easignore
+
+# Maestro
+.maestro/
+
+# Misc
+*.log
+*.tmp
+*.temp
