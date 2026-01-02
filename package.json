@@ -1,7 +1,7 @@
 {
   "name": "auth-template",
   "version": "0.0.1",
-  "private": true,
+  "private": false,
   "main": "index.tsx",
   "scripts": {
     "start": "expo start --dev-client",
