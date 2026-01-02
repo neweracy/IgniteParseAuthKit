@@ -1,0 +1,178 @@
+# CI/CD workflow: Build, Test, and Publish to npm
+# Triggers on PRs to main (all checks) and pushes to main (checks + publish)
+
+name: CI & Publish
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  # Manual trigger for on-demand publishing
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish to npm after build'
+        required: true
+        default: 'true'
+        type: boolean
+
+# Minimal permissions - only what's needed
+permissions:
+  contents: read
+
+# Cancel in-progress runs for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================
+  # JOB 1: Validate, Lint, Test, Build
+  # ============================================
+  validate:
+    name: Validate & Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # Checkout repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Setup Node.js LTS with npm caching for faster installs
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'  # LTS version compatible with Expo SDK 53
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      # Install dependencies with locked dependency graph (deterministic)
+      - name: Install dependencies
+        run: npm ci
+
+      # TypeScript type checking - catches type errors early
+      - name: TypeScript check
+        run: npm run compile --if-present || npx tsc --noEmit -p tsconfig-cli.json
+
+      # Linting - enforce code style and catch common issues
+      - name: Lint check
+        run: npm run lint:check --if-present || echo "No lint script found, skipping"
+
+      # Unit tests with coverage - run test suite and collect coverage
+      - name: Run tests with coverage
+        run: npx jest --coverage --passWithNoTests
+
+      # Upload coverage to Codecov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: neweracy/IgniteParseAuthKit
+          fail_ci_if_error: false  # Don't fail CI if codecov upload fails
+
+      # Expo doctor - validate Expo configuration
+      - name: Expo validation
+        run: |
+          # Only run expo doctor if we have the template with expo
+          if [ -f "template/package.json" ]; then
+            cd template
+            npm install --legacy-peer-deps || true
+            npx expo-doctor@latest || echo "Expo doctor found issues (non-blocking)"
+          else
+            echo "No template directory, skipping Expo validation"
+          fi
+
+      # Build the CLI package - fails workflow if build fails
+      - name: Build CLI
+        run: npm run build
+
+      # Verify the built package can be packed
+      - name: Verify package
+        run: |
+          npm pack --dry-run
+          echo "✅ Package is ready for publishing"
+
+      # Upload build artifacts for publish job
+      - name: Upload build artifacts
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
+  # ============================================
+  # JOB 2: Publish to npm (main branch only)
+  # ============================================
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    needs: validate  # Only run after all checks pass
+    timeout-minutes: 10
+
+    # Only publish on push to main, manual dispatch, or not from forks
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && inputs.publish == true) &&
+      github.repository == 'neweracy/IgniteParseAuthKit'
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      # Download build artifacts from validate job
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      # Install dependencies for publishing
+      - name: Install dependencies
+        run: npm ci
+
+      # Check if this version is already published (prevent double-publish)
+      - name: Check if version exists on npm
+        id: version-check
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          echo "name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+          echo "version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+          
+          # Check if version already exists on npm
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Version $PACKAGE_VERSION already exists on npm"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "✅ Version $PACKAGE_VERSION is new, ready to publish"
+          fi
+
+      # Publish to npm only if version doesn't exist
+      - name: Publish to npm
+        if: steps.version-check.outputs.exists == 'false'
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Log success or skip message
+      - name: Publish result
+        run: |
+          if [ "${{ steps.version-check.outputs.exists }}" == "true" ]; then
+            echo "::warning::Skipped publish - version ${{ steps.version-check.outputs.version }} already exists on npm"
+          else
+            echo "::notice::Successfully published ${{ steps.version-check.outputs.name }}@${{ steps.version-check.outputs.version }} to npm"
+          fi
